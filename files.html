@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+<style>
+*{
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+body{
+    background-image:url("index.jpg");
+    background-repeat:no-repeat; 
+    background-position:center; 
+    background-size:cover; 
+    height: 100vh;
+    padding:10px;
+}
+h2{
+    color: #fff;
+    font-size: 52.52px;
+    line-height: 95px;
+    font-weight: 400;
+    text-align: center;
+    margin: auto 40px;
+    padding-bottom: 20px;
+    text-transform: uppercase;
+}
+
+/* Table Styles */
+
+.table-wrapper{
+    margin: 10px 70px 70px;
+    box-shadow: 0px 35px 50px rgba( 0, 0, 0, 0.2 );
+}
+
+.fl-table {
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: normal;
+    border: none;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    white-space: nowrap;
+    background-color: white;
+}
+
+.fl-table td, .fl-table th {
+    text-align: center;
+    padding: 8px;
+}
+
+.fl-table td {
+    border-right: 1px solid #f8f8f8;
+    font-size: 12px;
+}
+
+.fl-table thead th {
+    color: #ffffff;
+    background: #4FC3A1;
+}
+
+
+.fl-table thead th:nth-child(odd) {
+    color: #ffffff;
+    background: #324960;
+}
+
+.fl-table tr:nth-child(even) {
+    background: #F8F8F8;
+}
+
+/* Responsive */
+
+@media (max-width: 767px) {
+    .fl-table {
+        display: block;
+        width: 100%;
+    }
+    .table-wrapper:before{
+        content: "Scroll horizontally >";
+        display: block;
+        text-align: right;
+        font-size: 11px;
+        color: white;
+        padding: 0 0 10px;
+    }
+    .fl-table thead, .fl-table tbody, .fl-table thead th {
+        display: block;
+    }
+    .fl-table thead th:last-child{
+        border-bottom: none;
+    }
+    .fl-table thead {
+        float: left;
+    }
+    .fl-table tbody {
+        width: auto;
+        position: relative;
+        overflow-x: auto;
+    }
+    .fl-table td, .fl-table th {
+        padding: 20px .625em .625em .625em;
+        height: 60px;
+        vertical-align: middle;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 120px;
+        font-size: 13px;
+        text-overflow: ellipsis;
+    }
+    .fl-table thead th {
+        text-align: left;
+        border-bottom: 1px solid #f7f7f9;
+    }
+    .fl-table tbody tr {
+        display: table-cell;
+    }
+    .fl-table tbody tr:nth-child(odd) {
+        background: none;
+    }
+    .fl-table tr:nth-child(even) {
+        background: transparent;
+    }
+    .fl-table tr td:nth-child(odd) {
+        background: #F8F8F8;
+        border-right: 1px solid #E6E4E4;
+    }
+    .fl-table tr td:nth-child(even) {
+        border-right: 1px solid #E6E4E4;
+    }
+    .fl-table tbody td {
+        display: block;
+        text-align: center;
+    }
+    .f1-table tbody tr a{
+       border-right: 1px solid #E6E4E4
+    }
+}
+
+</style>
+
+<body>
+	<h2>Responsive Table</h2>
+<div class="table-wrapper">
+    <table class="fl-table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Last modified</th>
+            <th>Size</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><a href="Chapter_1.pdf" download="Chapter_1.pdf"> Chapter 1</td>
+            <td>12/14/2020</td>            
+            <td>8.35MB</td>
+            <td>None</td>
+        </tr>
+        <tr>
+            <td><a href="Chapter_2.pdf" download="Chapter_2.pdf"> Chapter 2</td> 
+            <td>12/14/2020</td>
+            <td>7.98MB</td>
+            <td>None</td>
+        </tr>
+        <tr>
+            <td><a href="Chapter_3.pdf" download="Chapter_3.pdf"> Chapter 3</td> 
+            <td>12/14/2020</td>
+            <td>14.2MB</td>
+            <td>None</td>
+        </tr>
+        <tr>
+           <td><a href="Chapter_4.pdf" download="Chapter_4.pdf"> Chapter 4</td>  
+            <td>12/14/2020</td>
+            <td>7.42MB</td>
+            <td>None</td>
+        </tr>
+        <tr>
+            <td><a href="Chapter_5.pdf" download="Chapter_5.pdf"> Chapter 5</td>  
+            <td>12/14/2020</td>
+            <td>12.2MB</td>
+            <td>None</td>
+        </tr>
+        <tr>
+            <td><a href="Chapter_6.pdf" download="Chapter_6.pdf"> Chapter 6</td> 
+            <td>12/14/2020</td>
+            <td>9.07MB</td>
+            <td>None</td>
+        </tr>
+        <tbody>
+    </table>
+</div>
+</body>
+</html>
