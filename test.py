@@ -42,7 +42,7 @@ def handle_request(request):
         
     if method == 'POST':
         return handle_POST(request)
-    
+    # 400 Bad request
     return response
 
 def parse(request):
@@ -95,6 +95,8 @@ def handle_GET(request):
         # find out a file's MIME type
         # if nothing is found, just send `text/html`
         content_type = mimetypes.guess_type(path)[0] or 'text/html'
+        if content_type.split('/')[0] == 'text':
+            content_type +=  '; charset=UTF-8'
         if content_type == 'application/pdf':
             #headers += b'Content-Type: ' + content_type.encode() + b'\r\n'
             #headers += b'Content-Type: application/octet-stream\r\n'
@@ -128,10 +130,9 @@ def handle_GET(request):
             headers += b'Content-Length: ' + str(len(body)).encode() + b'\r\n'
             headers += b'Content-Type: ' + content_type.encode() + b'\r\n'
     else:
-        status_line = b'HTTP/1.1 404 Not Found\r\n'
-        headers = b'Server : localhost\r\nContent-Type: text/html\r\n'
-        body = b'<h1>404 Not Found</h1>'
+        return handle_404()
     
+    print(status_line+headers)
     blank_line = b'\r\n'
     
     response = status_line + headers + blank_line + body
@@ -139,16 +140,43 @@ def handle_GET(request):
     return response
 
 def handle_download(request):
-    
+    # create chunked response, data chunk
     
     return response
-
     
 def handle_POST(request):
-    if "inputAccount=admin&inputPassword=admin" in request: 
-        print('loggedin')
-    return b''
-
+    if b'application/x-www-form-urlencoded' in request:
+        if b'inputAccount=admin&inputPassword=admin' in request: 
+            print('Logged in')
+            # using status code 303 See Other to redirect a POST request is recommended
+            # The server sent this response to direct the client to get the requested resource at another URI with a GET request.
+            # https://tools.ietf.org/html/rfc7231#section-6.4.4
+            status_code = b'303'
+            status_message = b' See Other\r\n'
+            status_line = b'HTTP/1.1 ' + status_code + status_message
+            headers = b'Location: /info.html\r\n'
+            response = status_line + headers
+        else:
+            response = handle_404()
+    else:
+        response = handle_404()
+    return response
+    
+def handle_404():
+    with open('404.html', 'rb') as file:
+        body = file.read()
+        
+    status_line = b'HTTP/1.1 404 Not Found\r\n'
+    
+    headers = b'Server : localhost\r\n'
+    headers += b'Content-Length: ' + str(len(body)).encode() + b'\r\n'
+    headers += b'Content-Type: text/html\r\n'
+    
+    blank_line = b'\r\n'
+    
+    response = status_line + headers + blank_line + body
+    
+    return response
 
 if __name__ == '__main__':
     try:
