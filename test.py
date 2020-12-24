@@ -145,7 +145,7 @@ def handle_download(request):
     return response
     
 def handle_POST(request):
-    if b'application/x-www-form-urlencoded' in request:
+    if b'Content-Type: application/x-www-form-urlencoded' in request:
         if b'inputAccount=admin&inputPassword=admin' in request: 
             print('Logged in')
             # using status code 303 See Other to redirect a POST request is recommended
@@ -157,8 +157,10 @@ def handle_POST(request):
             headers = b'Location: /info.html\r\n'
             response = status_line + headers
         else:
+            print('fail auth')
             response = handle_404()
     else:
+        print('fail content type')
         response = handle_404()
     return response
     

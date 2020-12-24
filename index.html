@@ -4,11 +4,10 @@
 	
 <style>
 body{
-	background-image:url("index.jpg");
-	background-repeat:no-repeat; 
-	background-position:center; 
-	background-size:cover; 
-	padding:10px;
+	background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);
+  background-size: cover;
+ background-repeat: no-repeat;
+ height: 90vh;
 }
 .panel h2{ color:#444444; font-size:18px; margin:0 0 8px 0;}
 .panel p { color:#777777; font-size:14px; margin-bottom:30px; line-height:24px;}
@@ -66,10 +65,10 @@ body{
    </div>
     <form id="Login" action="info.html" method = "POST">
         <div class="form-group">
-            <input type="text" class="form-control" id="inputAccount" placeholder="Enter Username">
+            <input type="text" class="form-control" id="inputAccount" name="inputAccount" placeholder="Enter Username">
         </div>
         <div class="form-group">
-            <input type="password" class="form-control" id="inputPassword" placeholder="Enter Password">
+            <input type="password" class="form-control" id="inputPassword" name="inputAccount" placeholder="Enter Password">
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
     </form>

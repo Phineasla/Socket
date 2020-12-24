@@ -56,12 +56,10 @@ ul{
   display:inline-block;
 }
 body {
-  background-image:url("index.jpg");
-  background-repeat:no-repeat; 
-  background-position:center; 
-  background-size:cover; 
-  padding:10px;
-  
+ background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);
+  background-size: cover;
+ background-repeat: no-repeat;
+ height: 90vh;
 }
 .our-webcoderskull .cnt-block{ 
    float:center; 
@@ -110,10 +108,25 @@ body {
    font-weight:400;
 }
 
+header
+{
+  margin-left: 1250px;
+}
+a{
+
+  border: 1px solid black;
+  background-color: white;
+  appearance: button;
+  padding: 10px;
+  text-decoration: none;
+}
 
 </style>
 
 <body>
+  <header>
+     <a href="files.html">File Table</a>
+  </header>
   <section class="our-webcoderskull padding-lg">
   <div class="container">
     <div class="row heading heading-icon">
@@ -135,6 +148,7 @@ body {
           </div>
       </li>
       
+  
 </section>
 </body>
 </html>
