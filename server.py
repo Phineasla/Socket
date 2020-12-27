@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import socket
 import os
 import mimetypes
@@ -8,35 +10,37 @@ def parse(request):
 
     start_line = lines[0] # Start line is the first line of the request message
 
-    words = start_line.split(b' ') # split start line into seperate words
-    # [ b'method', b'URI', b'HTTP/1.1 ]
-    lines[0] = words
+    lines[0] = start_line.split(b' ') # split start line into seperate words
+    # lines[0] == [ b'method', b'URI', b'HTTP/1.1' ]
 
-    method = words[0].decode() # call decode to convert bytes to string
+    method = lines[0][0].decode() # call decode to convert bytes to string
 
     return lines, method
 
-def handle_request(conn, request):
+def handle_request(request):
     request, method = parse(request)
-    print("Server recv: ", request[0])
+    # The request is parsed
+    print('Server recv (parsed): ', repr(request[0]))
     if method == 'GET':
-        return handle_GET(conn, request)
-        
+        return handle_GET(request)
+
     if method == 'POST':
         return handle_POST(request)
-        # If cannot process the request
-    return b'HTTP/1.1 400 Bad Request\r\n'
+    
+    # If cannot process the request
+    return b'HTTP/1.1 400 Bad Request\r\nServer : localhost\r\n\r\n'
 
-def handle_GET(conn, request):
-    path = request[0][1].decode().strip('/') # remove slash from URI
+def handle_GET(request):
+    URI = request[0][1].decode()
+    path = URI.strip('/') # remove slash from URI
     
     if not path:
         # If path is empty, that means user is at the homepage so just serve index.html
         path = 'index.html'
 
-    if os.path.exists(path) and not os.path.isdir(path): # don't serve directories
+    if os.path.isfile(path): # check if file exists
         status_line = b'HTTP/1.1 200 OK\r\n'
-        headers = b'Server : localhost\r\nConnection: keep-alive\r\n'
+        headers = b'Server: localhost\r\n'
         
         # find out a file's MIME type
         # if nothing is found, just send `text/html`
@@ -44,9 +48,9 @@ def handle_GET(conn, request):
         if content_type.split('/')[0] == 'text':
             content_type +=  '; charset=UTF-8'
             # html, css, text
-            # Open file as binary so we dont need to convert to bytes
-            with open(path, 'r') as file:
-                body = file.read().encode()
+            # Open file as binary so we dont have to convert string to bytes
+            with open(path, 'rb') as file:
+                body = file.read()
             headers += b'Content-Length: ' + str(len(body)).encode() + b'\r\n'
             headers += b'Content-Type: ' + content_type.encode() + b'\r\n'
         # If file's type is PDF (download files) 
@@ -74,15 +78,15 @@ def handle_GET(conn, request):
     
     return response
 
-# create chunked response/ chunked data
+# create chunked response/chunked data
 def handle_chunked_response(path):
     # Open file as binary
     file = open(path, 'rb')
     
     chunk_body = b''
-    chunk_size = 1024 * 128
+    chunk_size = 1024 * 64
     chunk = file.read(chunk_size)
-    
+    # The chunk size is transferred as a hexadecimal number followed by \r\n as a line separator, followed by a chunk of data of the given size.
     while chunk:
         chunk_size = len(chunk)
         chunk_size_hex = hex(chunk_size)[2:].encode()
@@ -95,7 +99,7 @@ def handle_chunked_response(path):
 
 def handle_POST(request):
     if b'Content-Type: application/x-www-form-urlencoded' in request:
-        if b'inputAccount=admin&inputPassword=admin' in request: 
+        if b'inputAccount=admin&inputPassword=admin' in request:
             print('Logged in')
             # using status code 303 See Other to redirect a POST request is recommended
             # The server sent this response to direct the client to get the requested resource at another URI with a GET request.
@@ -104,7 +108,11 @@ def handle_POST(request):
             # https://tools.ietf.org/html/rfc7231#section-6.4.4
             status_line = b'HTTP/1.1 303 See Other\r\n'
             headers = b'Location: /info.html\r\n'
+            
+            print(status_line.decode() + headers.decode())
+            
             blank_line = b'\r\n'
+            
             response = status_line + headers + blank_line
         else:
             print('fail auth')
@@ -115,15 +123,17 @@ def handle_POST(request):
     return response
 
 def handle_404():
-    # Open file as text
-    with open('404.html', 'r') as file:
-        body = file.read().encode()
+    # Open file as binary so we dont have to convert string to bytes
+    with open('404.html', 'rb') as file:
+        body = file.read()
         
     status_line = b'HTTP/1.1 404 Not Found\r\n'
     
-    headers = b'Server : localhost\r\n'
+    headers = b'Server: localhost\r\n'
     headers += b'Content-Length: ' + str(len(body)).encode() + b'\r\n'
     headers += b'Content-Type: text/html\r\n'
+    
+    print(status_line.decode() + headers.decode())
     
     blank_line = b'\r\n'
     
@@ -133,20 +143,16 @@ def handle_404():
 
 if __name__ == '__main__':
     # The server's hostname or IP address. Standard loopback interface address (localhost)
-    HOST = "127.0.0.1" 
+    HOST = '127.0.0.1' 
     
     # The port used by the server, to listen on (non-privileged ports are > 1023)
-    PORT = 8888 
+    PORT = 8888
     
-    '''
-    Note that a server must perform the sequence socket(), bind(), listen(), accept() (possibly repeating the accept()),
-    Also note that the server does not sendall()/recv() on the socket it is listening on but on the new socket returned by accept().
-    '''
+    # Note that a server must perform the sequence socket(), bind(), listen(), accept() (possibly repeating the accept()),
+    
     
     # Create a TCP/IP socket
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Set socket keep alive
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     # Bind the socket to an address and a port
     server.bind((HOST, PORT))
@@ -156,19 +162,24 @@ if __name__ == '__main__':
     # Now waiting for clients to connect
     try:
         while True:
-            # accept a connection
+            # accept connection from client (web browser)
             conn, address = server.accept()
-            print("\nConnected by ", address)
+            print('\nConnected by ', address)
+            # receive HTTP request from client (web browser)
             request = conn.recv(1024)
             
-            response = handle_request(conn, request)
+            # Also note that the server does not sendall()/recv() on the socket it is listening on but on the new socket returned by accept().
+            
+            # process the request then reply with appropriate response
+            response = handle_request(request)
             # sending data (HTTP response) to client (web browser)
             conn.sendall(response)
-
             # closing connection
             conn.close()
     except KeyboardInterrupt:
-        print("Keyboard Interrupted")
+        # press Ctrl + C then reload the web to trigger exception
+        print('Keyboard Interrupted')
+        conn.close()
     finally:
-        print("Closing server")
+        print('Closing server')
         server.close()
