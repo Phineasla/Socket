@@ -30,7 +30,9 @@ def handle_request(request):
         return handle_POST(request)
 
     # If cannot process the request
-    return b'HTTP/1.1 400 Bad Request\r\nServer : localhost\r\nContent-Length: 0\r\n\r\n'
+    response = b'HTTP/1.1 400 Bad Request\r\nServer: localhost\r\nContent-Length: 0\r\n\r\n'
+    print(response.decode())
+    return response
 
 
 def handle_GET(request):
@@ -46,7 +48,7 @@ def handle_GET(request):
         headers = b'Server: localhost\r\n'
 
         # find out a file's MIME type
-        # if nothing is found, just send `text/html`
+        # if nothing is found, just send 'text/html'
         content_type = mimetypes.guess_type(path)[0] or 'text/html'
         if content_type.split('/')[0] == 'text':
             content_type += '; charset=UTF-8'
@@ -73,59 +75,56 @@ def handle_GET(request):
         # no file on the server
         return handle_404()
 
-    print(status_line.decode() + headers.decode())
-
     blank_line = b'\r\n'
     response = status_line + headers + blank_line + body
 
+    print(status_line.decode() + headers.decode())
     return response
 
 
 def handle_chunked_body(path):
     # create chunked response/chunked data
 
-    # Open file as binary
-    file = open(path, 'rb')
+    file = open(path, 'rb')  # Open file as binary
 
     chunk_body = b''
     chunk_size = 1024 * 64
     chunk = file.read(chunk_size)
-    # The chunk size is transferred as a hexadecimal number followed by \r\n as a line separator, followed by a chunk of data of the given size.
+
     while chunk:
         chunk_size = len(chunk)
+        # The chunk size is transferred as a hexadecimal number
         chunk_size_hex = hex(chunk_size)[2:].encode()
+        # followed by \r\n as a line separator, followed by a chunk of data of the given size
         chunk_body += chunk_size_hex + b'\r\n' + chunk + b'\r\n'
         chunk = file.read(chunk_size)
+    file.close()
+
     # End of chunk
     chunk_body += b'0\r\n\r\n'
-    file.close()
     return chunk_body
 
 
 def handle_POST(request):
-    if b'Content-Type: application/x-www-form-urlencoded' in request:
-        if b'inputAccount=admin&inputPassword=admin' in request:
-            print('Logged in')
-            # using status code 303 See Other to redirect a POST request is recommended
-            # The server sent this response to direct the client to get the requested resource at another URI with a GET request.
-            # This response code is usually sent back as a result of PUT or POST. The method used to display this redirected page is always GET.
-            # https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections
-            # https://tools.ietf.org/html/rfc7231#section-6.4.4
-            status_line = b'HTTP/1.1 303 See Other\r\n'
-            headers = b'Location: /info.html\r\n'
-            headers += b'Content-Length: 0\r\n'
+    if b'inputAccount=admin&inputPassword=admin' in request:
+        print('Logged in')
+        # using status code 303 See Other to redirect a POST request is recommended
+        # The server sent this response to direct the client to get the requested resource at another URI with a GET request.
+        # This response code is usually sent back as a result of PUT or POST. The method used to display this redirected page is always GET.
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections
+        # https://tools.ietf.org/html/rfc7231#section-6.4.4
+        status_line = b'HTTP/1.1 303 See Other\r\n'
 
-            print(status_line.decode() + headers.decode())
+        headers = b'Location: /info.html\r\n'
+        headers += b'Content-Length: 0\r\n'
 
-            blank_line = b'\r\n'
+        blank_line = b'\r\n'
 
-            response = status_line + headers + blank_line
-        else:
-            print('fail auth')
-            response = handle_404()
+        response = status_line + headers + blank_line
     else:
-        print('fail content type')
+        print('fail auth')
         response = handle_404()
+    print(status_line.decode() + headers.decode())
     return response
 
 
@@ -140,12 +139,10 @@ def handle_404():
     headers += b'Content-Length: ' + str(len(body)).encode() + b'\r\n'
     headers += b'Content-Type: text/html\r\n'
 
-    print(status_line.decode() + headers.decode())
-
     blank_line = b'\r\n'
-
     response = status_line + headers + blank_line + body
 
+    print(status_line.decode() + headers.decode())
     return response
 
 
