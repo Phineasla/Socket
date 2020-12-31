@@ -119,12 +119,11 @@ def handle_POST(request):
         headers += b'Content-Length: 0\r\n'
 
         blank_line = b'\r\n'
-
+        print(status_line.decode() + headers.decode())
         response = status_line + headers + blank_line
     else:
         print('fail auth')
         response = handle_404()
-    print(status_line.decode() + headers.decode())
     return response
 
 
